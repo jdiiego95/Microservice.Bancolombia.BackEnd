@@ -1,0 +1,119 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  
+  <!-- Mensajes de error de negocio -->
+  <data name="BusinessError" xml:space="preserve">
+    <value>Un error de negocio ha ocurrido: {0}</value>
+  </data>
+  
+  <!-- Mensajes de configuración -->
+  <data name="DataBaseConfigurationError" xml:space="preserve">
+    <value>La configuración de la base de datos no existe.</value>
+  </data>
+  
+  <!-- Mensajes para Account -->
+  <data name="EntityAlreadyExists" xml:space="preserve">
+    <value>Ya se encuentra una cuenta con el nombre de cliente {0} en la base de datos.</value>
+  </data>
+  
+  <data name="EntityCreatedSuccessfully" xml:space="preserve">
+    <value>La creación de la cuenta para el cliente {0}, se realizó correctamente.</value>
+  </data>
+  
+  <data name="EntityDeleteSuccessfully" xml:space="preserve">
+    <value>La cuenta se ha eliminado correctamente.</value>
+  </data>
+  
+  <data name="EntityNotExists" xml:space="preserve">
+    <value>La cuenta con identificador {0} no se encontró en la base de datos.</value>
+  </data>
+  
+  <data name="EntityUpdateSuccessfully" xml:space="preserve">
+    <value>La actualización de la cuenta para el cliente {0}, se realizó correctamente.</value>
+  </data>
+  
+  <!-- Mensajes para TransactionHistory -->
+  <data name="TransactionCreatedSuccessfully" xml:space="preserve">
+    <value>La transacción se ha creado correctamente con ID: {0}.</value>
+  </data>
+  
+  <data name="TransactionNotExists" xml:space="preserve">
+    <value>La transacción con identificador {0} no se encontró en la base de datos.</value>
+  </data>
+  
+  <data name="InsufficientBalance" xml:space="preserve">
+    <value>Saldo insuficiente en la cuenta de origen para realizar la transacción.</value>
+  </data>
+  
+  <data name="InvalidAccountError" xml:space="preserve">
+    <value>La cuenta con identificador {0} no es válida o no existe.</value>
+  </data>
+  
+  <data name="SameAccountTransactionError" xml:space="preserve">
+    <value>No se pueden realizar transacciones entre la misma cuenta.</value>
+  </data>
+  
+  <!-- Mensajes generales -->
+  <data name="GeneralApplicationError" xml:space="preserve">
+    <value>Ha ocurrido un error no controlado en la aplicación. contacte al administrador del sistema. Id: {0}</value>
+  </data>
+  
+</root>

@@ -19,11 +19,13 @@ namespace Microservice.Bancolombia.Api.Entities
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<TransactionHistory>()
+                .ToTable("TransactionsHistory");
+
             modelBuilder.Entity<TransactionHistory>(entity =>
             {
                 entity.HasIndex(e => e.TransactionDate)
                     .HasDatabaseName("IX_TransactionHistory_TransactionDate");
-
                 entity.HasIndex(e => e.BankCode)
                     .HasDatabaseName("IX_TransactionHistory_BankCode");
             });
