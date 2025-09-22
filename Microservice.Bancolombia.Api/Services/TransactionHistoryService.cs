@@ -33,10 +33,9 @@ namespace Microservice.Bancolombia.Api.Services
         /// </summary>
         private readonly IAccountClient _accountClient = accountClient ?? throw new ArgumentNullException(nameof(accountClient));
 
-        // Constantes para tipos de transacción
-        private const string TRANSACTION_TYPE_DEPOSIT = "DEP"; // Ingreso
-        private const string TRANSACTION_TYPE_WITHDRAWAL = "WTH"; // Retiro
-        private const string TRANSACTION_TYPE_TRANSFER = "TRF"; // Transferencia
+        private const string TRANSACTION_TYPE_DEPOSIT = "DEP";
+        private const string TRANSACTION_TYPE_WITHDRAWAL = "WTH";
+        private const string TRANSACTION_TYPE_TRANSFER = "TRF";
 
         /// <summary>
         /// Retrieves transaction histories based on the specified account ID with customer details.
@@ -72,14 +71,12 @@ namespace Microservice.Bancolombia.Api.Services
         {
             try
             {
-                // Validar que no sean la misma cuenta en transferencias
                 if (transactionRequest.TransactionType == TRANSACTION_TYPE_TRANSFER &&
                     transactionRequest.FromAccountId == transactionRequest.ToAccountId)
                 {
                     throw new SameAccountTransactionException();
                 }
 
-                // Procesar según el tipo de transacción
                 switch (transactionRequest.TransactionType)
                 {
                     case TRANSACTION_TYPE_DEPOSIT:
@@ -109,7 +106,6 @@ namespace Microservice.Bancolombia.Api.Services
         /// <returns>A success message.</returns>
         private async Task<string> ProcessDepositTransactionAsync(TransactionHistoryRequest transactionRequest)
         {
-            // Validar que la cuenta de destino exista
             Account? toAccount = this._accountClient.GetAccount(x => x.AccountId == transactionRequest.ToAccountId);
 
             if (toAccount == null)
@@ -117,11 +113,9 @@ namespace Microservice.Bancolombia.Api.Services
                 throw new InvalidAccountException($"La cuenta {transactionRequest.ToAccountId} no existe en Bancolombia. Verifica el número de cuenta e intenta nuevamente.");
             }
 
-            // Sumar el monto al balance de la cuenta de destino
             toAccount.TotalBalance += transactionRequest.Amount;
             await this._accountClient.UpdateAccountAsync(toAccount).ConfigureAwait(false);
 
-            // Crear el registro de transacción
             TransactionHistory newTransaction = CreateTransactionFromRequest(transactionRequest);
             TransactionHistory createdTransaction = await this._transactionHistoryClient.CreateTransactionHistoryAsync(newTransaction).ConfigureAwait(false);
 
@@ -139,7 +133,6 @@ namespace Microservice.Bancolombia.Api.Services
         /// <returns>A success message.</returns>
         private async Task<string> ProcessWithdrawalTransactionAsync(TransactionHistoryRequest transactionRequest)
         {
-            // Validar que la cuenta de origen exista
             Account? fromAccount = this._accountClient.GetAccount(x => x.AccountId == transactionRequest.FromAccountId);
 
             if (fromAccount == null)
@@ -147,17 +140,14 @@ namespace Microservice.Bancolombia.Api.Services
                 throw new InvalidAccountException($"La cuenta {transactionRequest.FromAccountId} no existe en Bancolombia. Verifica el número de cuenta e intenta nuevamente.");
             }
 
-            // Validar que tenga fondos suficientes
             if (fromAccount.TotalBalance < transactionRequest.Amount)
             {
                 throw new InsufficientBalanceException();
             }
 
-            // Restar el monto del balance de la cuenta de origen
             fromAccount.TotalBalance -= transactionRequest.Amount;
             await this._accountClient.UpdateAccountAsync(fromAccount).ConfigureAwait(false);
 
-            // Crear el registro de transacción
             TransactionHistory newTransaction = CreateTransactionFromRequest(transactionRequest);
             TransactionHistory createdTransaction = await this._transactionHistoryClient.CreateTransactionHistoryAsync(newTransaction).ConfigureAwait(false);
 
@@ -176,7 +166,6 @@ namespace Microservice.Bancolombia.Api.Services
         /// <returns>A success message.</returns>
         private async Task<string> ProcessTransferTransactionAsync(TransactionHistoryRequest transactionRequest)
         {
-            // Validar que ambas cuentas existan
             Account? fromAccount = this._accountClient.GetAccount(x => x.AccountId == transactionRequest.FromAccountId);
             Account? toAccount = this._accountClient.GetAccount(x => x.AccountId == transactionRequest.ToAccountId);
 
@@ -190,21 +179,17 @@ namespace Microservice.Bancolombia.Api.Services
                 throw new InvalidAccountException($"La cuenta de destino {transactionRequest.ToAccountId} no existe en Bancolombia.");
             }
 
-            // Validar fondos suficientes en cuenta de origen
             if (fromAccount.TotalBalance < transactionRequest.Amount)
             {
                 throw new InsufficientBalanceException();
             }
 
-            // Realizar la transferencia
             fromAccount.TotalBalance -= transactionRequest.Amount;
             toAccount.TotalBalance += transactionRequest.Amount;
 
-            // Actualizar ambas cuentas
             await this._accountClient.UpdateAccountAsync(fromAccount).ConfigureAwait(false);
             await this._accountClient.UpdateAccountAsync(toAccount).ConfigureAwait(false);
 
-            // Crear el registro de transacción
             TransactionHistory newTransaction = CreateTransactionFromRequest(transactionRequest);
             TransactionHistory createdTransaction = await this._transactionHistoryClient.CreateTransactionHistoryAsync(newTransaction).ConfigureAwait(false);
 
