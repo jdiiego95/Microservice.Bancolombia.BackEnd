@@ -54,6 +54,7 @@ namespace Microservice.Bancolombia.Api.Clients
         public IEnumerable<TransactionHistory> GetTransactionHistoriesByToAccountId(int toAccountId)
         {
             return _context.TransactionHistories
+                .Include(t => t.FromAccount)
                 .Include(t => t.ToAccount)
                 .Where(t => t.ToAccountId == toAccountId)
                 .OrderByDescending(t => t.TransactionDate);
@@ -66,7 +67,10 @@ namespace Microservice.Bancolombia.Api.Clients
         /// <returns>An enumerable collection of TransactionHistory entities with account details matching the filter criteria</returns>
         public IEnumerable<TransactionHistory> GetTransactionHistoriesWithAccount(Expression<Func<TransactionHistory, bool>>? filter)
         {
-            var query = _context.TransactionHistories.Include(t => t.ToAccount).AsQueryable();
+            var query = _context.TransactionHistories
+                .Include(t => t.FromAccount)
+                .Include(t => t.ToAccount)
+                .AsQueryable();
             return filter != null ? query.Where(filter) : query;
         }
 

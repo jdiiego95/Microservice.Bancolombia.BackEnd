@@ -28,6 +28,18 @@ namespace Microservice.Bancolombia.Api.Entities
                     .HasDatabaseName("IX_TransactionHistory_TransactionDate");
                 entity.HasIndex(e => e.BankCode)
                     .HasDatabaseName("IX_TransactionHistory_BankCode");
+
+                entity.HasOne(t => t.FromAccount)
+                    .WithMany(a => a.OutgoingTransactions)
+                    .HasForeignKey(t => t.FromAccountId)
+                    .HasConstraintName("FK_TransactionsHistory_FromAccount")
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(t => t.ToAccount)
+                    .WithMany(a => a.IncomingTransactions)
+                    .HasForeignKey(t => t.ToAccountId)
+                    .HasConstraintName("FK_TransactionsHistory_ToAccount")
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             OnModelCreatingPartial(modelBuilder);

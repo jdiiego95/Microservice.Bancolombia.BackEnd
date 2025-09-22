@@ -14,6 +14,10 @@ namespace Microservice.Bancolombia.Api.Entities.Model
         [Column(TypeName = "decimal(18,2)")]
         public decimal TotalBalance { get; set; }
 
+        [InverseProperty(nameof(TransactionHistory.FromAccount))]
+        public virtual ICollection<TransactionHistory> OutgoingTransactions { get; set; } = new List<TransactionHistory>();
+
+        [InverseProperty(nameof(TransactionHistory.ToAccount))]
         public virtual ICollection<TransactionHistory> IncomingTransactions { get; set; } = new List<TransactionHistory>();
     }
 }

@@ -47,7 +47,7 @@ namespace Microservice.Bancolombia.Api.Services
         {
             try
             {
-                IEnumerable<TransactionHistory> transactions = this._transactionHistoryClient.GetTransactionHistoriesByToAccountId(toAccountId);
+                List<TransactionHistory> transactions = this._transactionHistoryClient.GetTransactionHistoriesByToAccountId(toAccountId).ToList();
 
                 return GetTransactionHistoriesResponse(transactions);
             }
@@ -206,7 +206,7 @@ namespace Microservice.Bancolombia.Api.Services
         /// </summary>
         /// <param name="transactions">The list of transactions.</param>
         /// <returns>A list of transaction history response objects.</returns>
-        private static IEnumerable<TransactionHistoryResponse> GetTransactionHistoriesResponse(IEnumerable<TransactionHistory> transactions)
+        private IEnumerable<TransactionHistoryResponse> GetTransactionHistoriesResponse(IEnumerable<TransactionHistory> transactions)
         {
             return from transaction in transactions
                    select new TransactionHistoryResponse
@@ -214,12 +214,30 @@ namespace Microservice.Bancolombia.Api.Services
                        TransactionId = transaction.TransactionId,
                        BankCode = transaction.BankCode,
                        FromAccountId = transaction.FromAccountId,
+                       FromAccountCustomerName = GetFromAccountCustomerName(transaction),
                        ToAccountId = transaction.ToAccountId,
                        ToAccountCustomerName = transaction.ToAccount?.CustomerName ?? string.Empty,
                        TransactionType = transaction.TransactionType,
                        Amount = transaction.Amount,
                        TransactionDate = transaction.TransactionDate
                    };
+        }
+
+        /// <summary>
+        /// Gets the customer name for the from account, handling special cases for deposits.
+        /// </summary>
+        /// <param name="transaction">The transaction to get the from account name for.</param>
+        /// <returns>The customer name or appropriate description.</returns>
+        private string GetFromAccountCustomerName(TransactionHistory transaction)
+        {
+            if (transaction.TransactionType == TRANSACTION_TYPE_DEPOSIT)
+                return "Depósito externo";
+
+            if (transaction.FromAccountId <= 0)
+                return string.Empty;
+
+            var fromAccount = this._accountClient.GetAccount(x => x.AccountId == transaction.FromAccountId);
+            return fromAccount?.CustomerName ?? string.Empty;
         }
 
         /// <summary>

@@ -21,6 +21,11 @@
         public int FromAccountId { get; set; }
 
         /// <summary>
+        /// Gets or sets the name of the customer who owns the origin account.
+        /// </summary>
+        public string FromAccountCustomerName { get; set; } = string.Empty;
+
+        /// <summary>
         /// Gets or sets the identifier of the destination account for the transaction.
         /// </summary>
         public int ToAccountId { get; set; }

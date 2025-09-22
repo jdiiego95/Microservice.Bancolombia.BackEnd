@@ -26,7 +26,10 @@ namespace Microservice.Bancolombia.Api.Entities.Model
         [Column(TypeName = "datetime")]
         public DateTime TransactionDate { get; set; } = DateTime.Now;
 
-        [ForeignKey("ToAccountId")]
+        [ForeignKey(nameof(FromAccountId))]
+        public virtual Account FromAccount { get; set; } = null!;
+
+        [ForeignKey(nameof(ToAccountId))]
         public virtual Account ToAccount { get; set; } = null!;
     }
 }
