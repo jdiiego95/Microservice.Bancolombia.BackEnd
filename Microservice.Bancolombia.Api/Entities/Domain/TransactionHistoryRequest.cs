@@ -16,13 +16,6 @@ namespace Microservice.Bancolombia.Api.Entities.Domain
         public long TransactionHistoryId { get; set; }
 
         /// <summary>
-        /// The bank code associated with the transaction.
-        /// </summary>
-        [Required]
-        [MaxLength(50)]
-        public string BankCode { get; set; } = string.Empty;
-
-        /// <summary>
         /// The identifier of the account from which the transaction originates.
         /// </summary>
         [Required]

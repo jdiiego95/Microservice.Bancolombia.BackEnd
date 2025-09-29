@@ -49,24 +49,20 @@ namespace Microservice.Bancolombia.Api.Controllers
         /// Creates a new transaction asynchronously with business logic validation.
         /// </summary>
         /// <param name="transactionRequest">The transaction request containing the transaction information.</param>
-        /// <returns>A task representing the asynchronous operation, with an action result containing a string indicating success.</returns>
-        /// <response code="201">If the transaction was created successfully.</response>
+        /// <returns>A task representing the asynchronous operation, with an action result containing the created transaction details.</returns>
+        /// <response code="201">If the transaction was created successfully. Returns the complete transaction details.</response>
         /// <response code="400">If a business rule validation fails or request data is invalid.</response>
         /// <response code="404">If the referenced account(s) are not found.</response>
         /// <response code="409">If there's a conflict with the current state of the resource.</response>
         /// <response code="500">If an unexpected error occurs.</response>
         [HttpPost]
-        [ProducesResponseType(typeof(string), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(TransactionHistoryResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<string>> CreateTransactionAsync([FromBody] TransactionHistoryRequest transactionRequest)
+        public async Task<ActionResult<TransactionHistoryResponse>> CreateTransactionAsync([FromBody] TransactionHistoryRequest transactionRequest)
         {
-            if (string.IsNullOrWhiteSpace(transactionRequest.BankCode))
-            {
-                return BadRequest("Bank code is required.");
-            }
             if (transactionRequest.FromAccountId <= 0)
             {
                 return BadRequest("From Account ID must be greater than zero.");
@@ -94,11 +90,11 @@ namespace Microservice.Bancolombia.Api.Controllers
                 return BadRequest("Transaction type must be DEP (Deposit), WTH (Withdrawal), or TRF (Transfer).");
             }
 
-            ActionResult<string> result = await this.ExecuteWithErrorHandlingAsync(() => this._transactionHistoryService.CreateTransactionAsync(transactionRequest));
+            ActionResult<TransactionHistoryResponse> result = await this.ExecuteWithErrorHandlingAsync(() => this._transactionHistoryService.CreateTransactionAsync(transactionRequest));
 
-            if (result.Result is OkObjectResult okResult)
+            if (result.Result is OkObjectResult okResult && okResult.Value is TransactionHistoryResponse transactionResponse)
             {
-                return StatusCode(StatusCodes.Status201Created, okResult.Value);
+                return StatusCode(StatusCodes.Status201Created, transactionResponse);
             }
 
             return result;

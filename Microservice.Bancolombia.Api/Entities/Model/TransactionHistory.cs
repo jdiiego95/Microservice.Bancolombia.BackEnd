@@ -9,9 +9,6 @@ namespace Microservice.Bancolombia.Api.Entities.Model
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long TransactionId { get; set; }
 
-        [StringLength(50)]
-        public string BankCode { get; set; } = null!;
-
         public int FromAccountId { get; set; }
 
         public int ToAccountId { get; set; }

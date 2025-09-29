@@ -11,11 +11,6 @@
         public long TransactionId { get; set; }
 
         /// <summary>
-        /// Gets or sets the bank code associated with the transaction.
-        /// </summary>
-        public string BankCode { get; set; } = string.Empty;
-
-        /// <summary>
         /// Gets or sets the identifier of the account from which the transaction originated.
         /// </summary>
         public int FromAccountId { get; set; }

@@ -26,8 +26,6 @@ namespace Microservice.Bancolombia.Api.Entities
             {
                 entity.HasIndex(e => e.TransactionDate)
                     .HasDatabaseName("IX_TransactionHistory_TransactionDate");
-                entity.HasIndex(e => e.BankCode)
-                    .HasDatabaseName("IX_TransactionHistory_BankCode");
 
                 entity.HasOne(t => t.FromAccount)
                     .WithMany(a => a.OutgoingTransactions)

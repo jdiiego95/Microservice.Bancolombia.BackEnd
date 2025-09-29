@@ -62,12 +62,12 @@ namespace Microservice.Bancolombia.Api.Services
         /// Creates a new transaction asynchronously with comprehensive business logic validation.
         /// </summary>
         /// <param name="transactionRequest">The transaction request containing the details of the transaction to create.</param>
-        /// <returns>A task representing the asynchronous operation, with a result indicating the success of the operation.</returns>
+        /// <returns>A task representing the asynchronous operation, with a TransactionHistoryResponse containing the transaction details.</returns>
         /// <exception cref="InvalidAccountException">Thrown when the account does not exist.</exception>
         /// <exception cref="InsufficientBalanceException">Thrown when there are insufficient funds for withdrawal.</exception>
         /// <exception cref="SameAccountTransactionException">Thrown when trying to transfer to the same account.</exception>
         /// <exception cref="Exception">Thrown when an error occurs during the operation.</exception>
-        public async Task<string> CreateTransactionAsync(TransactionHistoryRequest transactionRequest)
+        public async Task<TransactionHistoryResponse> CreateTransactionAsync(TransactionHistoryRequest transactionRequest)
         {
             try
             {
@@ -103,8 +103,8 @@ namespace Microservice.Bancolombia.Api.Services
         /// Processes a deposit transaction (ingreso de dinero).
         /// </summary>
         /// <param name="transactionRequest">The transaction request.</param>
-        /// <returns>A success message.</returns>
-        private async Task<string> ProcessDepositTransactionAsync(TransactionHistoryRequest transactionRequest)
+        /// <returns>A TransactionHistoryResponse with the created transaction details.</returns>
+        private async Task<TransactionHistoryResponse> ProcessDepositTransactionAsync(TransactionHistoryRequest transactionRequest)
         {
             Account? toAccount = this._accountClient.GetAccount(x => x.AccountId == transactionRequest.ToAccountId);
 
@@ -119,19 +119,25 @@ namespace Microservice.Bancolombia.Api.Services
             TransactionHistory newTransaction = CreateTransactionFromRequest(transactionRequest);
             TransactionHistory createdTransaction = await this._transactionHistoryClient.CreateTransactionHistoryAsync(newTransaction).ConfigureAwait(false);
 
-            return string.Format(CultureInfo.CurrentCulture,
-                "Depósito exitoso. Se han ingresado ${0:N2} a la cuenta {1}. ID de transacción: {2}",
-                transactionRequest.Amount,
-                transactionRequest.ToAccountId,
-                createdTransaction.TransactionId);
+            return new TransactionHistoryResponse
+            {
+                TransactionId = createdTransaction.TransactionId,
+                FromAccountId = transactionRequest.FromAccountId,
+                FromAccountCustomerName = "Depósito externo",
+                ToAccountId = transactionRequest.ToAccountId,
+                ToAccountCustomerName = toAccount.CustomerName ?? string.Empty,
+                TransactionType = transactionRequest.TransactionType,
+                Amount = transactionRequest.Amount,
+                TransactionDate = createdTransaction.TransactionDate
+            };
         }
 
         /// <summary>
         /// Processes a withdrawal transaction (retiro de dinero).
         /// </summary>
         /// <param name="transactionRequest">The transaction request.</param>
-        /// <returns>A success message.</returns>
-        private async Task<string> ProcessWithdrawalTransactionAsync(TransactionHistoryRequest transactionRequest)
+        /// <returns>A TransactionHistoryResponse with the created transaction details.</returns>
+        private async Task<TransactionHistoryResponse> ProcessWithdrawalTransactionAsync(TransactionHistoryRequest transactionRequest)
         {
             Account? fromAccount = this._accountClient.GetAccount(x => x.AccountId == transactionRequest.FromAccountId);
 
@@ -151,20 +157,25 @@ namespace Microservice.Bancolombia.Api.Services
             TransactionHistory newTransaction = CreateTransactionFromRequest(transactionRequest);
             TransactionHistory createdTransaction = await this._transactionHistoryClient.CreateTransactionHistoryAsync(newTransaction).ConfigureAwait(false);
 
-            return string.Format(CultureInfo.CurrentCulture,
-                "Retiro exitoso. Se han retirado ${0:N2} de la cuenta {1}. Saldo restante: ${2:N2}. ID de transacción: {3}",
-                transactionRequest.Amount,
-                transactionRequest.FromAccountId,
-                fromAccount.TotalBalance,
-                createdTransaction.TransactionId);
+            return new TransactionHistoryResponse
+            {
+                TransactionId = createdTransaction.TransactionId,
+                FromAccountId = transactionRequest.FromAccountId,
+                FromAccountCustomerName = fromAccount.CustomerName ?? string.Empty,
+                ToAccountId = transactionRequest.ToAccountId,
+                ToAccountCustomerName = string.Empty,
+                TransactionType = transactionRequest.TransactionType,
+                Amount = transactionRequest.Amount,
+                TransactionDate = createdTransaction.TransactionDate
+            };
         }
 
         /// <summary>
         /// Processes a transfer transaction (transferencia entre cuentas).
         /// </summary>
         /// <param name="transactionRequest">The transaction request.</param>
-        /// <returns>A success message.</returns>
-        private async Task<string> ProcessTransferTransactionAsync(TransactionHistoryRequest transactionRequest)
+        /// <returns>A TransactionHistoryResponse with the created transaction details.</returns>
+        private async Task<TransactionHistoryResponse> ProcessTransferTransactionAsync(TransactionHistoryRequest transactionRequest)
         {
             Account? fromAccount = this._accountClient.GetAccount(x => x.AccountId == transactionRequest.FromAccountId);
             Account? toAccount = this._accountClient.GetAccount(x => x.AccountId == transactionRequest.ToAccountId);
@@ -193,12 +204,17 @@ namespace Microservice.Bancolombia.Api.Services
             TransactionHistory newTransaction = CreateTransactionFromRequest(transactionRequest);
             TransactionHistory createdTransaction = await this._transactionHistoryClient.CreateTransactionHistoryAsync(newTransaction).ConfigureAwait(false);
 
-            return string.Format(CultureInfo.CurrentCulture,
-                "Transferencia exitosa. ${0:N2} transferidos desde la cuenta {1} hacia la cuenta {2}. ID de transacción: {3}",
-                transactionRequest.Amount,
-                transactionRequest.FromAccountId,
-                transactionRequest.ToAccountId,
-                createdTransaction.TransactionId);
+            return new TransactionHistoryResponse
+            {
+                TransactionId = createdTransaction.TransactionId,
+                FromAccountId = transactionRequest.FromAccountId,
+                FromAccountCustomerName = fromAccount.CustomerName ?? string.Empty,
+                ToAccountId = transactionRequest.ToAccountId,
+                ToAccountCustomerName = toAccount.CustomerName ?? string.Empty,
+                TransactionType = transactionRequest.TransactionType,
+                Amount = transactionRequest.Amount,
+                TransactionDate = createdTransaction.TransactionDate
+            };
         }
 
         /// <summary>
@@ -212,7 +228,6 @@ namespace Microservice.Bancolombia.Api.Services
                    select new TransactionHistoryResponse
                    {
                        TransactionId = transaction.TransactionId,
-                       BankCode = transaction.BankCode,
                        FromAccountId = transaction.FromAccountId,
                        FromAccountCustomerName = GetFromAccountCustomerName(transaction),
                        ToAccountId = transaction.ToAccountId,
@@ -249,7 +264,6 @@ namespace Microservice.Bancolombia.Api.Services
         {
             return new TransactionHistory
             {
-                BankCode = transactionRequest.BankCode,
                 FromAccountId = transactionRequest.FromAccountId,
                 ToAccountId = transactionRequest.ToAccountId,
                 TransactionType = transactionRequest.TransactionType,
